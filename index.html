@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather App</title>
+    <link rel="stylesheet" href="index.css">
+</head>
+<body>
+    <div class="card">
+        <div class="search">
+            <input type="text" id="cityInput" placeholder="Enter city name" spellcheck="false">
+            <button id="searchBtn">Search</button>
+        </div>
+        <div class="weather">
+            <img src="images/rain.png" alt="" class="weather-icon" id="weatherIcon">
+            <h1 class="temp">22°C</h1>
+            <h2 class="city" id="cityName">Chennai</h2>
+            <div class="details">
+                <div class="col">
+                    <img src="images/humidity.png" alt="">
+                    <div>
+                        <p class="humidity" id="humidity">50%</p>
+                        <p>Humidity</p>
+                    </div>
+                </div>
+                <div class="col">
+                    <img src="images/wind.png" alt="">
+                    <div>
+                        <p class="wind" id="wind">15 Km/h</p>
+                        <p>Wind Speed</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const apiKey = "817e77f9ca123cfea0265e105e7bb62a"; // Replace with your actual API key
+        const apiUrl = "https://api.openweathermap.org/data/2.5/weather?units=metric&appid=" + apiKey;
+
+        const searchInput = document.getElementById("cityInput");
+        const searchBtn = document.getElementById("searchBtn");
+        const cityNameElement = document.getElementById("cityName");
+        const tempElement = document.querySelector(".temp");
+        const humidityElement = document.getElementById("humidity");
+        const windElement = document.getElementById("wind");
+        const weatherIcon = document.getElementById("weatherIcon");
+
+        async function checkWeather(city) {
+            try {
+                const response = await fetch(apiUrl + "&q=" + city);
+                
+                if (!response.ok) {
+                    throw new Error("Failed to fetch weather data.");
+                }
+
+                const data = await response.json();
+
+                cityNameElement.textContent = data.name;
+                tempElement.textContent = `${Math.round(data.main.temp)}°C`;
+                humidityElement.textContent = `${data.main.humidity}%`;
+                windElement.textContent = `${data.wind.speed} km/h`;
+
+                // Set the weather icon based on weather condition
+                setWeatherIcon(data.weather[0].main.toLowerCase());
+            } catch (error) {
+                console.error(error.message);
+            }
+        }
+
+        function setWeatherIcon(weatherCondition) {
+            switch (weatherCondition) {
+                case "clouds":
+                    weatherIcon.src = "images/clouds.png";
+                    break;
+                case "clear":
+                    weatherIcon.src = "images/clear.png";
+                    break;
+                case "rain":
+                    weatherIcon.src = "images/rain.png";
+                    break;
+                case "drizzle":
+                    weatherIcon.src = "images/drizzle.png";
+                    break;
+                case "mist":
+                    weatherIcon.src = "images/mist.png";
+                    break;
+                default:
+                    weatherIcon.src = "images/unknown.png"; // Default icon for unknown conditions
+                    break;
+            }
+        }
+
+        searchBtn.addEventListener("click", () => {
+            const cityName = searchInput.value.trim();
+            if (cityName !== "") {
+                checkWeather(cityName);
+            }
+        });
+
+        searchInput.addEventListener("keypress", (e) => {
+            if (e.key === "Enter") {
+                const cityName = searchInput.value.trim();
+                if (cityName !== "") {
+                    checkWeather(cityName);
+                }
+            }
+        });
+    </script>
+</body>
+</html>
